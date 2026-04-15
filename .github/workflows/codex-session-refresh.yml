@@ -1,0 +1,93 @@
+name: Codex Session Refresh
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "30 6 * * *"
+permissions:
+  contents: write
+
+concurrency:
+  group: codex-auth-refresh-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  refresh-auth:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 2
+
+      - name: Install sops
+        uses: nhedger/setup-sops@v2
+
+      - name: Install age
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install -y age
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install Codex CLI
+        run: npm install -g @openai/codex
+
+      - name: Decrypt auth bundle to ~/.codex
+        env:
+          SOPS_AGE_KEY: ${{ secrets.AGE_PRIVATE_KEY }}
+        run: |
+          set -euo pipefail
+          umask 077
+          CODEX_HOME="$HOME/.codex"
+          mkdir -p "$CODEX_HOME"
+          cat > "$CODEX_HOME/config.toml" <<'EOF'
+          cli_auth_credentials_store = "file"
+          model_reasoning_effort = "low"
+          EOF
+          sops --decrypt --input-type binary --output "$CODEX_HOME/auth.json" auth.json.enc
+
+      - name: Prime session and refresh token if required
+        run: |
+          set -euo pipefail
+          export CODEX_HOME="$HOME/.codex"
+          codex -m gpt-5.4-mini "Reply with exactly: SolidGoldMagikarp"
+        # You can change this to any prompt you want.
+
+      - name: Re-encrypt updated auth.json
+        env:
+          SOPS_AGE_KEY: ${{ secrets.AGE_PRIVATE_KEY }}
+        run: |
+          set -euo pipefail
+          CODEX_HOME="$HOME/.codex"
+          AGE_PUBLIC_KEY="$(printf '%s\n' "$SOPS_AGE_KEY" | age-keygen -y)"
+          sops --encrypt --age "$AGE_PUBLIC_KEY" --input-type binary --output-type binary --output auth.json.enc "$CODEX_HOME/auth.json"
+
+      - name: Commit ciphertext update if changed
+        env:
+          BRANCH_NAME: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          if git diff --quiet -- auth.json.enc; then
+            echo "No auth bundle change detected."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add auth.json.enc
+
+          LAST_SUBJECT="$(git log -1 --pretty=%s)"
+          if [ "$LAST_SUBJECT" = "chore: refresh encrypted Codex auth bundle" ]; then
+            git commit --amend --no-edit
+          else
+            git commit -m "chore: refresh encrypted Codex auth bundle"
+          fi
+
+          git push --force-with-lease origin "HEAD:${BRANCH_NAME}"
