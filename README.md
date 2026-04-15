@@ -99,11 +99,6 @@ sops --encrypt --age "$AGE_PUBLIC_KEY" \
 # Print the key and copy the printed line into GitHub Secret "AGE_PRIVATE_KEY"
 # Settings -> Secrets and variables -> Actions
 printf '%s\n' "$AGE_PRIVATE_KEY"
-
-# Important!
-# Exit the shell, so you don't accidentally run codex from the TMP directory.
-# If you do, the secret in the home might rotate, and the one in the repo stops working.
-exit
 ```
 
 ### Changing settings
@@ -138,6 +133,12 @@ Commit only the encrypted auth file and the Github action (if you made any chang
 git add auth.json.enc .github/workflows/codex-session-refresh.yml
 git commit -m "Add encrypted Codex auth refresh workflow"
 git push
+
+
+# Important!
+# Exit the shell, so you don't accidentally run codex from the TMP directory.
+# If you do, the secret in the home might rotate, and the one in the repo stops working.
+exit
 ```
 You can now run the action manually once, to check if it works. It will always run according to your cronjob.
 
