@@ -1,10 +1,10 @@
 # Codex Session Primer
 
-This Github action touches a coding session before your workday starts so the 5h rolling window begins earlier and stays useful while you are actually trying to work.
+This Github action touches a coding session before your workday starts so the 5h rolling window begins earlier and Codex stays useful while you are actually trying to work.
 
 ## The Problem
 
-Codex is great until the 5h limit is used up but you still have 3 hours of work left to do.
+Codex is great until the 5h limit is used up but you still have 3 hours of work left to do. 
 
 Picture this:
 
