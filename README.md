@@ -146,7 +146,7 @@ Done! Have a productive day!
 
 >Do not run the action multiple times at once. It could cause a race condition and create a stale ``auth.json``, which means you would have to create and export an auth token from your local PC once more.
 
-### Is this allowed?
+## Is this allowed?
 
 I don't know! But it's not much different from using Codex in a random CI/CD job which gets triggered at a specific time of day. If it isn't allowed, please let me know by opening an issue. I will archive the repo and stop using it personally.
 
