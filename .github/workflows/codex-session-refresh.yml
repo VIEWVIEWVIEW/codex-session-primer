@@ -57,7 +57,7 @@ jobs:
         run: |
           set -euo pipefail
           export CODEX_HOME="$HOME/.codex"
-          codex -m gpt-5.4-mini "Reply with exactly: SolidGoldMagikarp"
+          codex -m gpt-5.4-mini exec "Reply with exactly: SolidGoldMagikarp"
         # You can change this to any prompt you want.
 
       - name: Re-encrypt updated auth.json
