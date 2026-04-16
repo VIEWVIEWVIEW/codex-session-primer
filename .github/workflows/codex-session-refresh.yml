@@ -3,7 +3,8 @@ name: Codex Session Refresh
 on:
   workflow_dispatch:
   schedule:
-    - cron: "30 5 * * *"
+    - cron: "38 13 * * *"
+      timezone: 'Europe/Berlin'
 permissions:
   contents: write
 
