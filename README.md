@@ -46,7 +46,7 @@ This GitHub Action solves the misery by waking Codex up before you arrive.
 
 This keeps the session reusable in CI without committing plaintext credentials. The Github action runs 5:30 AM by default, but you can change it [here](https://github.com/VIEWVIEWVIEW/codex-session-primer/blob/main/.github/workflows/codex-session-refresh.yml#L6).
 
-Note that action cron jobs use UTC.
+>Please note that when scheduling a cron job an action on Github it is executed on "best effort" basis. Which means, that in some cases, cron jobs are executed with a delay up to 30 Minutes. Usually it's less, but it can happen. Manual runs are always executed instantly.
 
 ## Setup
 
