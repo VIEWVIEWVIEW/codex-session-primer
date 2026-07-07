@@ -13,7 +13,51 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  gate:
+    runs-on: ubuntu-latest
+    outputs:
+      should_run: ${{ steps.check.outputs.should_run }}
+    steps:
+      - name: Check age of latest commit
+        id: check
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const ref = context.ref.replace("refs/heads/", "");
+            const { data: commit } = await github.rest.repos.getCommit({
+              owner,
+              repo,
+              ref,
+            });
+
+            const commitDate =
+              commit.commit.committer?.date ??
+              commit.commit.author?.date;
+
+            if (!commitDate) {
+              core.setFailed("Could not determine latest commit timestamp.");
+              return;
+            }
+
+            const commitMs = Date.parse(commitDate);
+            const nowMs = Date.now();
+            const maxAgeMs = 5 * 60 * 60 * 1000;
+            const ageMs = nowMs - commitMs;
+            const shouldRun = ageMs >= maxAgeMs;
+
+            core.info(`Latest commit at ${commitDate}`);
+            core.info(`Commit age is ${Math.floor(ageMs / 60000)} minutes`);
+            core.info(`Threshold is ${Math.floor(maxAgeMs / 60000)} minutes`);
+            core.setOutput("should_run", shouldRun ? "true" : "false");
+
+            if (!shouldRun) {
+              core.notice("Skipping refresh because the latest commit is newer than 5 hours.");
+            }
+
   refresh-auth:
+    needs: gate
+    if: needs.gate.outputs.should_run == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
