@@ -105,6 +105,12 @@ jobs:
           codex -m gpt-5.4-mini exec "Reply with exactly: SolidGoldMagikarp"
         # You can change this to any prompt you want.
 
+      - name: Touch a Codex Spark session once
+        run: |
+          set -euo pipefail
+          export CODEX_HOME="$HOME/.codex"
+          codex -m gpt-5.4-mini exec "Touch a Codex Spark session exactly once and reply with exactly: SparkTouched"
+
       - name: Re-encrypt updated auth.json
         env:
           SOPS_AGE_KEY: ${{ secrets.AGE_PRIVATE_KEY }}
