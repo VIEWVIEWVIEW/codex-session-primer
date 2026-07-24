@@ -109,7 +109,7 @@ jobs:
         run: |
           set -euo pipefail
           export CODEX_HOME="$HOME/.codex"
-          codex -m gpt-5.4-mini exec "Touch a Codex Spark session exactly once and reply with exactly: SparkTouched"
+          codex -m gpt-5.3-codex-spark exec "Reply with exactly: SolidGoldMagikarp"
 
       - name: Re-encrypt updated auth.json
         env:
