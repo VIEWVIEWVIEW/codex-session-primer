@@ -44,7 +44,8 @@ jobs:
             const nowMs = Date.now();
             const maxAgeMs = 5 * 60 * 60 * 1000;
             const ageMs = nowMs - commitMs;
-            const shouldRun = ageMs >= maxAgeMs;
+            const shouldRun =
+              context.eventName === "workflow_dispatch" || ageMs >= maxAgeMs;
 
             core.info(`Latest commit at ${commitDate}`);
             core.info(`Commit age is ${Math.floor(ageMs / 60000)} minutes`);
