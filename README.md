@@ -39,7 +39,7 @@ This GitHub Action solves the misery by waking Codex up before you arrive.
 ## How It Works
 
 1. The workflow decrypts `auth.json.enc` into a runner-local `~/.codex`.
-2. It runs a minimal prompt `codex exec ...` on GPT-5.4-mini low (currently the cheapest model in codex-cli).
+2. It runs a minimal prompt `codex exec ...` on GPT-5.6-Luna with low reasoning effort.
 3. If the ``auth.json`` is stale, Codex refreshes automatically.
 4. The updated `auth.json` is encrypted back to `auth.json.enc`.
 5. If the ciphertext changed, the workflow amends the latest commit and force-pushes with lease, so the next run of the action can login automatically as well.
@@ -117,11 +117,11 @@ jobs:
   refresh-auth:
     steps:
       - name: Prime session and refresh token if required
-        # Change prompt and model which will execute it (low $/token model recommended).
+        # Change prompt and model which will execute it.
         run: |
           set -euo pipefail
           export CODEX_HOME="$HOME/.codex"
-          codex -m gpt-5.4-mini "Reply with exactly: SolidGoldMagikarp"
+          codex -m gpt-5.6-luna "Reply with exactly: SolidGoldMagikarp"
 
 ```
 
