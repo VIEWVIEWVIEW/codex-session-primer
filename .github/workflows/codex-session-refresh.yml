@@ -99,18 +99,12 @@ jobs:
           EOF
           sops --decrypt --input-type binary --output "$CODEX_HOME/auth.json" auth.json.enc
 
-      - name: Prime session and refresh token if required
+      - name: Refresh session with GPT-5.6 Luna (low reasoning)
         run: |
           set -euo pipefail
           export CODEX_HOME="$HOME/.codex"
           codex -m gpt-5.6-luna exec "Reply with exactly: SolidGoldMagikarp"
         # You can change this to any prompt you want.
-
-      - name: Touch a Codex Spark session once
-        run: |
-          set -euo pipefail
-          export CODEX_HOME="$HOME/.codex"
-          codex -m gpt-5.3-codex-spark exec "Reply with exactly: SolidGoldMagikarp"
 
       - name: Re-encrypt updated auth.json
         env:
